@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	. "github.com/tus/tusd"
+	. "github.com/nagae-memooff/tusd"
 )
 
 func TestCORS(t *testing.T) {

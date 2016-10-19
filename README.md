@@ -20,7 +20,7 @@ moment allowing to continue seamlessly after e.g. network interruptions.
 
 You can download ready-to-use packages including binaries for OS X, Linux and
 Windows in various formats of the
-[latest release](https://github.com/tus/tusd/releases/latest).
+[latest release](https://github.com/nagae-memooff/tusd/releases/latest).
 
 ### Compile from source
 
@@ -52,8 +52,8 @@ your own Go program:
 package main
 
 import (
-	"github.com/tus/tusd"
-	"github.com/tus/tusd/filestore"
+	"github.com/nagae-memooff/tusd"
+	"github.com/nagae-memooff/tusd/filestore"
 	"net/http"
 )
 
@@ -95,20 +95,20 @@ func main() {
 }
 ```
 
-Please consult the [online documentation](https://godoc.org/github.com/tus/tusd)
+Please consult the [online documentation](https://godoc.org/github.com/nagae-memooff/tusd)
 for more details about tusd's APIs and its sub-packages.
 
 ## Implementing own storages
 
 The tusd server is built to be as flexible as possible and to allow the use
 of different upload storage mechanisms. By default the tusd binary includes
-[`filestore`](https://godoc.org/github.com/tus/tusd/filestore) which will save every upload
+[`filestore`](https://godoc.org/github.com/nagae-memooff/tusd/filestore) which will save every upload
 to a specific directory on disk.
 
 If you have different requirements, you can build your own storage backend
 which will save the files to S3, a remote FTP server or similar. Doing so
-is as simple as implementing the [`tusd.DataStore`](https://godoc.org/github.com/tus/tusd/#DataStore)
-interface and using the new struct in the [configuration object](https://godoc.org/github.com/tus/tusd/#Config).
+is as simple as implementing the [`tusd.DataStore`](https://godoc.org/github.com/nagae-memooff/tusd/#DataStore)
+interface and using the new struct in the [configuration object](https://godoc.org/github.com/nagae-memooff/tusd/#Config).
 Please consult the documentation about detailed information about the
 required methods.
 
@@ -117,11 +117,11 @@ required methods.
 This repository does not only contain the HTTP server's code but also other
 useful tools:
 
-* [**s3store**](https://godoc.org/github.com/tus/tusd/s3store): A storage backend using AWS S3
-* [**filestore**](https://godoc.org/github.com/tus/tusd/filestore): A storage backend using the local file system
-* [**memorylocker**](https://godoc.org/github.com/tus/tusd/memorylocker): An in-memory locker for handling concurrent uploads
-* [**consullocker**](https://godoc.org/github.com/tus/tusd/consullocker): A locker using the distributed Consul service
-* [**limitedstore**](https://godoc.org/github.com/tus/tusd/limitedstore): A storage wrapper limiting the total used space for uploads
+* [**s3store**](https://godoc.org/github.com/nagae-memooff/tusd/s3store): A storage backend using AWS S3
+* [**filestore**](https://godoc.org/github.com/nagae-memooff/tusd/filestore): A storage backend using the local file system
+* [**memorylocker**](https://godoc.org/github.com/nagae-memooff/tusd/memorylocker): An in-memory locker for handling concurrent uploads
+* [**consullocker**](https://godoc.org/github.com/nagae-memooff/tusd/consullocker): A locker using the distributed Consul service
+* [**limitedstore**](https://godoc.org/github.com/nagae-memooff/tusd/limitedstore): A storage wrapper limiting the total used space for uploads
 
 ## Running the testsuite
 

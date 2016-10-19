@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strconv"
 
-	"github.com/tus/tusd"
+	"github.com/nagae-memooff/tusd"
 )
 
 type HookType string

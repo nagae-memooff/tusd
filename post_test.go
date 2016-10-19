@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 
-	. "github.com/tus/tusd"
+	. "github.com/nagae-memooff/tusd"
 )
 
 func TestPost(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	. "github.com/tus/tusd"
+	. "github.com/nagae-memooff/tusd"
 )
 
 type closingStringReader struct {

@@ -22,8 +22,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tus/tusd"
-	"github.com/tus/tusd/uid"
+	"github.com/nagae-memooff/tusd"
+	"github.com/nagae-memooff/tusd/uid"
 
 	"gopkg.in/Acconut/lockfile.v1"
 )

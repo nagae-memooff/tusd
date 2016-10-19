@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/tus/tusd"
+	"github.com/nagae-memooff/tusd"
 )
 
 var stdout = log.New(os.Stdout, "[tusd] ", 0)
