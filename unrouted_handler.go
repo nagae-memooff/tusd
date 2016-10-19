@@ -3,7 +3,9 @@ package tusd
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +34,7 @@ var (
 	ErrUploadNotFinished   = errors.New("one of the partial uploads is not finished")
 	ErrInvalidConcat       = errors.New("invalid Upload-Concat header")
 	ErrModifyFinal         = errors.New("modifying a final upload is not allowed")
+	ErrNeedLogin           = errors.New("need to login")
 )
 
 // HTTP status codes sent in the response when the specific error is returned.
@@ -49,6 +52,7 @@ var ErrStatusCodes = map[error]int{
 	ErrUploadNotFinished:   http.StatusBadRequest,
 	ErrInvalidConcat:       http.StatusBadRequest,
 	ErrModifyFinal:         http.StatusForbidden,
+	ErrNeedLogin:           401,
 }
 
 // UnroutedHandler exposes methods to handle requests as part of the tus protocol,
@@ -190,6 +194,10 @@ func (handler *UnroutedHandler) Middleware(h http.Handler) http.Handler {
 // PostFile creates a new file upload using the datastore after validating the
 // length and parsing the metadata.
 func (handler *UnroutedHandler) PostFile(w http.ResponseWriter, r *http.Request) {
+	if !checkToken(w, r) {
+		handler.sendError(w, r, ErrNeedLogin)
+	}
+
 	// Check for presence of application/offset+octet-stream. If another content
 	// type is defined, it will be ignored and treated as none was set because
 	// some HTTP clients may enforce a default value for this header.
@@ -299,6 +307,9 @@ func (handler *UnroutedHandler) PostFile(w http.ResponseWriter, r *http.Request)
 
 // HeadFile returns the length and offset for the HEAD request
 func (handler *UnroutedHandler) HeadFile(w http.ResponseWriter, r *http.Request) {
+	if !checkToken(w, r) {
+		handler.sendError(w, r, ErrNeedLogin)
+	}
 
 	id, err := extractIDFromPath(r.URL.Path)
 	if err != nil {
@@ -347,6 +358,9 @@ func (handler *UnroutedHandler) HeadFile(w http.ResponseWriter, r *http.Request)
 
 // PatchFile adds a chunk to an upload. Only allowed enough space is left.
 func (handler *UnroutedHandler) PatchFile(w http.ResponseWriter, r *http.Request) {
+	if !checkToken(w, r) {
+		handler.sendError(w, r, ErrNeedLogin)
+	}
 
 	// Check for presence of application/offset+octet-stream
 	if r.Header.Get("Content-Type") != "application/offset+octet-stream" {
@@ -404,6 +418,13 @@ func (handler *UnroutedHandler) PatchFile(w http.ResponseWriter, r *http.Request
 	if err := handler.writeChunk(id, info, w, r); err != nil {
 		handler.sendError(w, r, err)
 		return
+	}
+
+	info, err = handler.composer.Core.GetInfo(id)
+	if err == nil && info.IsFinal {
+		// 判断文件是否上传完毕，若上传完毕，则调ruby的接口
+		// NOTE 不知这里是否可靠
+		registFileToServer(handler, id, info, r)
 	}
 
 	handler.sendResp(w, r, http.StatusNoContent)
@@ -784,4 +805,48 @@ func extractIDFromPath(url string) (string, error) {
 
 func i64toa(num int64) string {
 	return strconv.FormatInt(num, 10)
+}
+
+// TODO: 实现检查token的逻辑，若不成功则返回false
+func checkToken(w http.ResponseWriter, r *http.Request) bool {
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		return false
+	} else {
+		return true
+	}
+}
+
+// TODO: 将文件信息转发到ruby server
+func registFileToServer(handler *UnroutedHandler, id string, info FileInfo, r *http.Request) bool {
+	token := r.Header.Get("Authorization")
+
+	client := &http.Client{}
+
+	file_name := info.MetaData["file_name"]
+	file_path := handler.composer.Core.BinPath(id)
+	file_size := info.Size
+	file_md5 := info.MetaData["md5"]
+
+	arg := strings.NewReader(fmt.Sprintf("file_name=%s&tmp_path=%s&file_size=%dfile_md5=%s", file_name, file_path, file_size, file_md5))
+	req, err := http.NewRequest("POST", "http://127.0.0.1:3000/api/v1/uploaded_files/regist_exist_files", arg)
+	if err != nil {
+		// handle error
+	}
+
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Authorization", token)
+
+	resp, err := client.Do(req)
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		// handle error
+	}
+
+	log.Println(string(body))
+
+	return true
 }
