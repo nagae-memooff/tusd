@@ -43,6 +43,10 @@ type DataStore interface {
 	// requests. It may return an os.ErrNotExist which will be interpreted as a
 	// 404 Not Found.
 	GetInfo(id string) (FileInfo, error)
+
+	BinPath(id string) (bin_path string)
+
+	InfoPath(id string) (info_path string)
 }
 
 // TerminaterDataStore is the interface which must be implemented by DataStores

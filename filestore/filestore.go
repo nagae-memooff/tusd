@@ -200,3 +200,11 @@ func (store FileStore) writeInfo(id string, info tusd.FileInfo) error {
 	}
 	return ioutil.WriteFile(store.infoPath(id), data, defaultFilePerm)
 }
+
+func (store FileStore) BinPath(id string) string {
+	return store.binPath(id)
+}
+
+func (store FileStore) InfoPath(id string) string {
+	return store.infoPath(id)
+}
