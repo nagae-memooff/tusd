@@ -12,8 +12,6 @@ import (
 var Composer *tusd.StoreComposer
 
 func CreateComposer() {
-	// Attempt to use S3 as a backend if the -s3-bucket option has been supplied.
-	// If not, we default to storing them locally on disk.
 	Composer = tusd.NewStoreComposer()
 	dir := Flags.UploadDir
 
