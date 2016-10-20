@@ -15,17 +15,15 @@ func CreateComposer() {
 	// Attempt to use S3 as a backend if the -s3-bucket option has been supplied.
 	// If not, we default to storing them locally on disk.
 	Composer = tusd.NewStoreComposer()
-	if Flags.S3Bucket == "" {
-		dir := Flags.UploadDir
+	dir := Flags.UploadDir
 
-		stdout.Printf("Using '%s' as directory storage.\n", dir)
-		if err := os.MkdirAll(dir, os.FileMode(0774)); err != nil {
-			stderr.Fatalf("Unable to ensure directory exists: %s", err)
-		}
-
-		store := filestore.New(dir)
-		store.UseIn(Composer)
+	stdout.Printf("Using '%s' as directory storage.\n", dir)
+	if err := os.MkdirAll(dir, os.FileMode(0774)); err != nil {
+		stderr.Fatalf("Unable to ensure directory exists: %s", err)
 	}
+
+	store := filestore.New(dir)
+	store.UseIn(Composer)
 
 	storeSize := Flags.StoreSize
 	maxSize := Flags.MaxSize
