@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -420,12 +421,13 @@ func (handler *UnroutedHandler) PatchFile(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	info, err = handler.composer.Core.GetInfo(id)
-	if err == nil && info.IsFinal {
-		// 判断文件是否上传完毕，若上传完毕，则调ruby的接口
-		// NOTE 不知这里是否可靠
-		registFileToServer(handler, id, info, r)
-	}
+	//info, err = handler.composer.Core.GetInfo(id)
+	//if err == nil && info.IsFinal {
+	//	// 判断文件是否上传完毕，若上传完毕，则调ruby的接口
+	//	// TODO 不知这里是否可靠，先计算一下md5，和meta里的对比，如果一致再做
+	//
+	//	registFileToServer(handler, id, info, r)
+	//}
 
 	handler.sendResp(w, r, http.StatusNoContent)
 }
@@ -827,6 +829,11 @@ func registFileToServer(handler *UnroutedHandler, id string, info FileInfo, r *h
 	file_path := handler.composer.Core.BinPath(id)
 	file_size := info.Size
 	file_md5 := info.MetaData["md5"]
+
+	if file_name == "" {
+		// 如果元数据中未指定filename，则按照纳秒数生成默认的
+		file_name = fmt.Sprintf("unnamed_file_%d", time.Now().UnixNano())
+	}
 
 	arg := strings.NewReader(fmt.Sprintf("file_name=%s&tmp_path=%s&file_size=%dfile_md5=%s", file_name, file_path, file_size, file_md5))
 	req, err := http.NewRequest("POST", "http://127.0.0.1:3000/api/v1/uploaded_files/regist_exist_files", arg)
