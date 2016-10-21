@@ -22,7 +22,7 @@ PIDFILE=/home/ewhine/var/run/tusd.pid
 LOGFILE=/home/ewhine/var/log/tusd.log
 ulimit -n 100000
 
-STORE_DIR="/opt/ewhine/deploy/ewhine_NB/efiles/contents/tusd"
+STORE_DIR="/home/ewhine/deploy/ewhine_NB/efiles/contents/tusd"
 ARGS="-dir $STORE_DIR"
 
 RETVAL=0
@@ -39,7 +39,6 @@ start () {
     echo "$prog has already been started!"
     exit 0;
   fi
-	mkdir -p $STORE_DIR
 
   echo -n "Starting $prog: "
   #start-stop-daemon --start --background --chuid $USER --chdir $DIR --make-pidfile --pidfile $PIDFILE --exec $DAEMON
